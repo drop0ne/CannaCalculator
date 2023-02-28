@@ -28,22 +28,14 @@ int main() {
     mgTHC = converter(THCa, gramsFLOWER);
 
     std::cout << "\n " << THCa << "% THCa Converts to\n " << floor(mgTHC) << "mg THC /per " << gramsFLOWER << "g of FLOWER\n\n";
-    
-    {
-        std::cout << " Convert to serving? Y/N: ";
-        std::cin >> responce;
-        if (responce != 'y') {
-            return 0;
-        }
-    }
 
     do {
         servings = servings + 2;
-        std::cout << "\n " << floor(mg_serving(servings, mgTHC)) << "mg per " << servings << " Servings";
+        std::cout << " " << floor(mg_serving(servings, mgTHC)) << "mg per " << servings << " Servings\n";
 
     } while (servings < 27);
 
-    std::cout << "\n";
+    std::cout << "\n\n";
     system("pause");
 }
 
