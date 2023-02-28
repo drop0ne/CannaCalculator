@@ -12,7 +12,7 @@ int main() {
     double THCa{};
     double gramsFLOWER{};
     double mgTHC{};
-    double servings{0};
+    double servings{ 0 };
     char responce{};
 
     std::cout << " CannaCalculator\n\n\n";
