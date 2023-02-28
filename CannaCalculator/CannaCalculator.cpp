@@ -1,6 +1,7 @@
 // Autor Jacob Dougherty - drop0ne
 // Started 2/27/2023
 // I reserve all rights
+// Now in Beta
 
 #include <iostream>
 
