@@ -1,48 +1,46 @@
-// Autor Jacob Dougherty - drop0ne
-// Started 2/27/2023
-// I reserve all rights
-// Now in Beta
-
 #include <iostream>
 
-double converter(double percent_THCa, double gramsFLOWER);
-double mg_serving(double servings, double mgTHC);
+const int MAX_SERVINGS = 27;
+const int MIN_SERVINGS = 2;
+
+double calculate_mg_TCH(double percentage_THCa, double grams_flower);
+double calculate_mg_per_serving(double servings, double mg_THC);
 
 int main() {
-    double THCa{};
-    double gramsFLOWER{};
-    double mgTHC{};
-    double servings{ 0 };
-    char responce{};
+    double percentage_THCa = 0;
+    double grams_flower = 0;
+    double mg_THC = 0;
+    double servings = 0;
+    char response = '\0';
 
-    std::cout << " CannaCalculator\n\n\n";
+    std::cout << "CannaCalculator\n\n\n";
 
-    std::cout << " First enter the % percentage THCa of your Cannabis Flower \n Then Enter the total number of grams of flower you are going to use to infuse our choice of oil or butter\n\n\n\n";
+    std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
+        << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n\n\n";
 
-    std::cout << " What Percentage, THCa, is the Cannabis Flower you are using?: ";
-    std::cin >> THCa;
+    std::cout << "What percentage of THCa is the cannabis flower you are using? ";
+    std::cin >> percentage_THCa;
 
-    std::cout << "\n How many GRAMS of FLOWER are you using?:  ";
-    std::cin >> gramsFLOWER;
+    std::cout << "\nHow many grams of flower are you using?  ";
+    std::cin >> grams_flower;
 
-    mgTHC = converter(THCa, gramsFLOWER);
+    mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower);
 
-    std::cout << "\n " << THCa << "% THCa Converts to\n " << floor(mgTHC) << "mg THC /per " << gramsFLOWER << "g of FLOWER\n\n";
+    std::cout << "\n" << percentage_THCa << "% THCa converts to "
+        << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
-    do {
-        servings = servings + 2;
-        std::cout << " " << floor(mg_serving(servings, mgTHC)) << "mg per " << servings << " Servings\n";
-
-    } while (servings < 27);
+    for (int i = MIN_SERVINGS; i <= MAX_SERVINGS; i += 2) {
+        std::cout << static_cast<int>(calculate_mg_per_serving(i, mg_THC)) << "mg per " << i << " servings\n";
+    }
 
     std::cout << "\n\n";
     system("pause");
 }
 
-double converter(double percent_THCa, double gramsFLOWER) {
-    return ((percent_THCa * 10) * .8) * gramsFLOWER;
+double calculate_mg_TCH(double percentage_THCa, double grams_flower) {
+    return (percentage_THCa * 10) * 0.8 * grams_flower;
 }
 
-double mg_serving(double servings, double mgTHC) {
-    return mgTHC / servings;
+double calculate_mg_per_serving(double servings, double mg_THC) {
+    return mg_THC / servings;
 }
