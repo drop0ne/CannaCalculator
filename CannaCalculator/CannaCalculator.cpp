@@ -35,9 +35,7 @@ private:
     };
 
 public:
-    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    }
+    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {}
 
     void run() {
         setScreenColor("color 8");
@@ -102,16 +100,21 @@ private:
 
         while (true) {
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
-            if (std::cin >> percentage_THCa) {
-                if (percentage_THCa >= 0 && percentage_THCa <= 100) {
-                    break;
+            try {
+                if (std::cin >> percentage_THCa) {
+                    if (percentage_THCa >= 0 && percentage_THCa <= 100) {
+                        break;
+                    }
+                    else {
+                        throw std::out_of_range("Invalid input. Please enter a percentage between 0 and 100.");
+                    }
                 }
                 else {
-                    std::cout << "Invalid input. Please enter a percentage between 0 and 100.\n";
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
                 }
             }
-            else {
-                std::cout << "Invalid input. Please enter a numeric value.\n";
+            catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
                 clearInputBuffer();
             }
         }
@@ -122,16 +125,21 @@ private:
     void getGrams() {
         while (true) {
             std::cout << "How many grams of flower are you using? ";
-            if (std::cin >> grams_flower) {
-                if (grams_flower > 0) {
-                    break;
+            try {
+                if (std::cin >> grams_flower) {
+                    if (grams_flower > 0) {
+                        break;
+                    }
+                    else {
+                        throw std::out_of_range("Invalid input. Please enter a positive value.");
+                    }
                 }
                 else {
-                    std::cout << "Invalid input. Please enter a positive value.\n";
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
                 }
             }
-            else {
-                std::cout << "Invalid input. Please enter a numeric value.\n";
+            catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
                 clearInputBuffer();
             }
         }
@@ -141,16 +149,21 @@ private:
         double loss;
         while (true) {
             std::cout << "Enter Custom Loss as a decimal number. For example, 0.8 is 20%: ";
-            if (std::cin >> loss) {
-                if (loss >= 0 && loss <= 1) {
-                    break;
+            try {
+                if (std::cin >> loss) {
+                    if (loss >= 0 && loss <= 1) {
+                        break;
+                    }
+                    else {
+                        throw std::out_of_range("Invalid input. Please enter a decimal number between 0 and 1.");
+                    }
                 }
                 else {
-                    std::cout << "Invalid input. Please enter a decimal number between 0 and 1.\n";
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
                 }
             }
-            else {
-                std::cout << "Invalid input. Please enter a numeric value.\n";
+            catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
                 clearInputBuffer();
             }
         }
@@ -184,8 +197,8 @@ private:
     }
 
     void clearInputBuffer() {
-        std::cout << "\n\n";
-        std::cin.ignore(9223372036854775807, '\n');
+        std::cin.clear();
+        std::cin.ignore(9223372036854775807, '\n');  //Hard limit of buffer for x64
     }
 };
 
