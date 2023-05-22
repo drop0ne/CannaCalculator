@@ -30,6 +30,7 @@ public:
         }
 
         std::cout << "\n\n";
+        system("pause");
     }
 
 private:
@@ -44,12 +45,12 @@ private:
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
             if (std::cin >> response) {
                 if (response == 'y' || response == 'Y') {
+                    enableLoss = true;
                     std::cout << "\nThe default loss is 20% THC\n";
 
                     std::cout << "Would you like to use a custom percentage? (y/n): ";
                     std::cin >> response;
                     if (response == 'y' || response == 'Y') {
-                        enableLoss = true;
                         customLoss = getCustomLoss();
                     }
                     break;
@@ -129,7 +130,7 @@ private:
     }
 
     double calculate_mg_TCH(double percentage_THCa, double grams_flower, bool enableLoss, double enableCustomLoss) {
-        double percentLoss = 0.8;
+        double percentLoss = 0.8;  //This is 20%
 
         if (enableCustomLoss > 0) {
             percentLoss = enableCustomLoss;
