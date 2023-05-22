@@ -35,11 +35,11 @@ private:
     };
 
 public:
-    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {}
+    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
 
     void run() {
-        setScreenColor("color 8");
-
         setTextColor(GREEN);
         std::cout << "CannaCalculator\n\n";
         setTextColor(WHITE);
@@ -73,6 +73,8 @@ private:
 
         while (true) {
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
+            //setScreenColor("color 8");  //Set old text to gray
+            setTextColor(GREEN);
             if (std::cin >> response) {
                 if (response == 'y' || response == 'Y') {
                     enableLoss = true;
@@ -99,7 +101,10 @@ private:
         }
 
         while (true) {
+            setScreenColor("color 8");  //Set old text to gray
+            setTextColor(WHITE);
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
+            setTextColor(GREEN);
             try {
                 if (std::cin >> percentage_THCa) {
                     if (percentage_THCa >= 0 && percentage_THCa <= 100) {
