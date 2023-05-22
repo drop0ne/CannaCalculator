@@ -148,6 +148,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CannaCalculator.cpp" />
+    <ClCompile Include="myCustomCode.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libraries.h" />
+    <ClInclude Include="myCustomCode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

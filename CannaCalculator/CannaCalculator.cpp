@@ -1,5 +1,4 @@
-#include <iostream>
-#include <limits>
+#include "libraries.h"
 
 class CannaCalculator {
 private:
@@ -40,10 +39,10 @@ private:
         bool enableLoss = false;
 
         while (true) {
-            std::cout << "Would you like me to account for loss of THC during the infusing proccess? y/n";
+            std::cout << "Would you like me to account for loss of THC during the infusing proccess? y/n : ";
             if (std::cin >> userResponce) {
                 if (userResponce == 'y') {
-                    std::cout << "The default loss is 20% THC";
+                    std::cout << "\nThe default loss is 20% THC\n";
                     enableLoss = true;
                 }
             }
