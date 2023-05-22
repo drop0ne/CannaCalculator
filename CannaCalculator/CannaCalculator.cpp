@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <Windows.h>
 
 class CannaCalculator {
 private:
@@ -8,11 +9,42 @@ private:
     double mg_THC;
     double customLoss;
 
+    HANDLE hConsole; // Handle to the console output device
+
+    enum Color {
+        DEFAULT = 7,
+        BLACK = 0,
+        DARK_GREEN = 2,
+        GREEN = 2,
+        BRIGHT_GREEN = 10,
+        BLUE = 1,
+        BRIGHT_RED = 12,
+        RED = 4,
+        LIGHT_BLUE = 3,
+        ICE_BLUE = 9,
+        TEAL_BLUE = 11,
+        WHITE = 7,
+        BRIGHT_WHITE = 15,
+        GRAY = 8,
+        PURPLE = 5,
+        YELLOW = 6,
+        HIGHLIGHT_WITH_BLUE_BLUE = 19,
+        HIGHLIGHT_WITH_BLUE_BLUE2 = 25,
+        HIGHLIGHT_BLUE_WHITE = 23,
+        CHECK = 27
+    };
+
 public:
-    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {}
+    CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0), customLoss(0) {
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
 
     void run() {
+        setScreenColor("color 8");
+
+        setTextColor(GREEN);
         std::cout << "CannaCalculator\n\n";
+        setTextColor(WHITE);
 
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
@@ -20,7 +52,7 @@ public:
         bool enableLoss = getPercentage();
         getGrams();
 
-        mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower, enableLoss, customLoss); // Calculate total THC in milligrams
+        mg_THC = calculate_mg_THC(percentage_THCa, grams_flower, enableLoss, customLoss); // Calculate total THC in milligrams
 
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
@@ -64,8 +96,7 @@ private:
             }
             else {
                 std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                clearInputBuffer();
             }
         }
 
@@ -81,8 +112,7 @@ private:
             }
             else {
                 std::cout << "Invalid input. Please enter a numeric value.\n";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                clearInputBuffer();
             }
         }
 
@@ -102,8 +132,7 @@ private:
             }
             else {
                 std::cout << "Invalid input. Please enter a numeric value.\n";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                clearInputBuffer();
             }
         }
     }
@@ -122,15 +151,14 @@ private:
             }
             else {
                 std::cout << "Invalid input. Please enter a numeric value.\n";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                clearInputBuffer();
             }
         }
         return loss;
     }
 
-    double calculate_mg_TCH(double percentage_THCa, double grams_flower, bool enableLoss, double enableCustomLoss) {
-        double percentLoss = 0.8;  //This is 20%
+    double calculate_mg_THC(double percentage_THCa, double grams_flower, bool enableLoss, double enableCustomLoss) {
+        double percentLoss = 0.8; // Default loss is 20%
 
         if (enableCustomLoss > 0) {
             percentLoss = enableCustomLoss;
@@ -145,6 +173,19 @@ private:
 
     double calculate_mg_per_serving(double servings, double mg_THC) {
         return mg_THC / servings; // Calculate THC per serving
+    }
+
+    void setTextColor(int color) {
+        SetConsoleTextAttribute(hConsole, color);
+    }
+
+    void setScreenColor(const char* color) {
+        system(color);
+    }
+
+    void clearInputBuffer() {
+        std::cout << "\n\n";
+        std::cin.ignore(9223372036854775807, '\n');
     }
 };
 

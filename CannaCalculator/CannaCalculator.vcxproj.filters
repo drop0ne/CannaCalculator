@@ -18,16 +18,5 @@
     <ClCompile Include="CannaCalculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="myCustomCode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="myCustomCode.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="libraries.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
