@@ -1,4 +1,5 @@
-#include "libraries.h"
+#include <iostream>
+#include <limits>
 
 class CannaCalculator {
 private:
@@ -31,22 +32,30 @@ public:
     }
 
 private:
-    static const int MAX_SERVINGS = 27;
-    static const int MIN_SERVINGS = 2;
+    static constexpr int MAX_SERVINGS = 27;
+    static constexpr int MIN_SERVINGS = 2;
 
     bool getPercentage() {
-        char userResponce;
+        char userResponse;
         bool enableLoss = false;
 
         while (true) {
-            std::cout << "Would you like me to account for loss of THC during the infusing proccess? y/n : ";
-            if (std::cin >> userResponce) {
-                if (userResponce == 'y') {
+            std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
+            if (std::cin >> userResponse) {
+                if (userResponse == 'y' || userResponse == 'Y') {
                     std::cout << "\nThe default loss is 20% THC\n";
                     enableLoss = true;
                 }
+                break;
             }
+            else {
+                std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+        }
 
+        while (true) {
             std::cout << "What percentage of THCa is the cannabis flower you are using? ";
             if (std::cin >> percentage_THCa) {
                 if (percentage_THCa >= 0 && percentage_THCa <= 100) {
@@ -62,6 +71,7 @@ private:
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             }
         }
+
         return enableLoss;
     }
 
@@ -84,8 +94,8 @@ private:
         }
     }
 
-    double calculate_mg_TCH(double percentage_THCa, double grams_flower,bool enableLoss) {
-        float percentLoss = 0.8;
+    double calculate_mg_TCH(double percentage_THCa, double grams_flower, bool enableLoss) {
+        double percentLoss = 0.8;
 
         if (enableLoss) {
             return (percentage_THCa * 10) * percentLoss * grams_flower;
