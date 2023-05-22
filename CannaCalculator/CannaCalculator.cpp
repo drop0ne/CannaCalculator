@@ -6,6 +6,8 @@ private:
     double percentage_THCa;
     double grams_flower;
     double mg_THC;
+    double value = { 0 };
+
 
 public:
     CannaCalculator() : percentage_THCa(0), grams_flower(0), mg_THC(0) {}
@@ -17,9 +19,10 @@ public:
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
         bool enableLoss = getPercentage();
+        double enableCustomLoss = getCustomLoss();
         getGrams();
 
-        mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower, enableLoss);
+        mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower, enableLoss, enableCustomLoss); // Calculate total THC in milligrams
 
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
@@ -36,14 +39,22 @@ private:
     static constexpr int MIN_SERVINGS = 2;
 
     bool getPercentage() {
-        char userResponse;
+        char responce{};
         bool enableLoss = false;
 
         while (true) {
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
-            if (std::cin >> userResponse) {
-                if (userResponse == 'y' || userResponse == 'Y') {
+            if (std::cin >> responce) {
+                if (responce == 'y' || responce == 'Y') {
                     std::cout << "\nThe default loss is 20% THC\n";
+
+                    std::cout << "Would you liek to use a custom percentage? y/n : ";
+                    std::cin >> responce;
+                    if (responce == 'y' || responce == 'Y') {
+                        std::cout << "\nEnter Custom Loss as a decemal Number.  For example 0.8 is 20%\n";
+                        std::cout << "Enter Custom Value : ";
+                        std::cin >> this->value;
+                    }
                     enableLoss = true;
                 }
                 break;
@@ -56,7 +67,7 @@ private:
         }
 
         while (true) {
-            std::cout << "What percentage of THCa is the cannabis flower you are using? ";
+            std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
             if (std::cin >> percentage_THCa) {
                 if (percentage_THCa >= 0 && percentage_THCa <= 100) {
                     break;
@@ -94,18 +105,26 @@ private:
         }
     }
 
-    double calculate_mg_TCH(double percentage_THCa, double grams_flower, bool enableLoss) {
+    double getCustomLoss() {
+        return this->value;
+    }
+
+    double calculate_mg_TCH(double percentage_THCa, double grams_flower, bool enableLoss, double enableCustomLoss) {
         double percentLoss = 0.8;
 
-        if (enableLoss) {
-            return (percentage_THCa * 10) * percentLoss * grams_flower;
+        if (enableCustomLoss) {
+            percentLoss = enableCustomLoss;
         }
 
-        return (percentage_THCa * 10) * grams_flower;
+        if (enableLoss) {
+            return (percentage_THCa * 10) * percentLoss * grams_flower; // Apply loss factor to the calculation
+        }
+
+        return (percentage_THCa * 10) * grams_flower; // Calculate THC without loss
     }
 
     double calculate_mg_per_serving(double servings, double mg_THC) {
-        return mg_THC / servings;
+        return mg_THC / servings; // Calculate THC per serving
     }
 };
 
