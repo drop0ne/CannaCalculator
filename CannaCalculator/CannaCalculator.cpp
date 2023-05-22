@@ -16,10 +16,10 @@ public:
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
-        getPercentage();
+        bool enableLoss = getPercentage();
         getGrams();
 
-        mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower);
+        mg_THC = calculate_mg_TCH(percentage_THCa, grams_flower, enableLoss);
 
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
@@ -35,8 +35,19 @@ private:
     static const int MAX_SERVINGS = 27;
     static const int MIN_SERVINGS = 2;
 
-    void getPercentage() {
+    bool getPercentage() {
+        char userResponce;
+        bool enableLoss = false;
+
         while (true) {
+            std::cout << "Would you like me to account for loss of THC during the infusing proccess? y/n";
+            if (std::cin >> userResponce) {
+                if (userResponce == 'y') {
+                    std::cout << "The default loss is 20% THC";
+                    enableLoss = true;
+                }
+            }
+
             std::cout << "What percentage of THCa is the cannabis flower you are using? ";
             if (std::cin >> percentage_THCa) {
                 if (percentage_THCa >= 0 && percentage_THCa <= 100) {
@@ -52,6 +63,7 @@ private:
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             }
         }
+        return enableLoss;
     }
 
     void getGrams() {
@@ -73,8 +85,14 @@ private:
         }
     }
 
-    double calculate_mg_TCH(double percentage_THCa, double grams_flower) {
-        return (percentage_THCa * 10) * 0.8 * grams_flower;
+    double calculate_mg_TCH(double percentage_THCa, double grams_flower,bool enableLoss) {
+        float percentLoss = 0.8;
+
+        if (enableLoss) {
+            return (percentage_THCa * 10) * percentLoss * grams_flower;
+        }
+
+        return (percentage_THCa * 10) * grams_flower;
     }
 
     double calculate_mg_per_serving(double servings, double mg_THC) {
