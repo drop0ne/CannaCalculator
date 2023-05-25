@@ -2,6 +2,26 @@
 #include <limits>
 #include <Windows.h>
 
+/*
+        //TODO:
+
+        priority 1
+        replace the decemal input for % loss and replace with " Enter Loss: ##%"
+        replace ## with an integer
+        % is displayed in a cout then the curser needs to be manually moved
+
+        low priority 3
+        then run the cin in a loop to detect the first two input numbers and auto complete to the next prompt for user input
+
+        ********
+                
+        Other task:
+
+        resume aplying color logic / medium priority 2
+
+*/
+
+
 class CannaCalculator {
 private:
     double percentage_THCa;
