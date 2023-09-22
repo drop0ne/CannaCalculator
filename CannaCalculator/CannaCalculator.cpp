@@ -47,9 +47,25 @@ public:
     void clearInputBuffer() {
         std::cin.sync();
         std::cin.clear();
-        std::cin.ignore(100, '\n'); // Hard coded maximum value (100)
+        std::cin.ignore(100, '\n');
+    }
+
+    void setErrorMessageColor() {
+        setTextColor(4); // Set error messages to red
+    }
+
+    void setUserInputColor() {
+        setTextColor(10); // Set user input to green
+    }
+
+    void setSystemOutputColor() {
+        setTextColor(7); // Set system output to default color
     }
 };
+
+
+/////////////////////////////  MAIN
+
 
 int main() {
     double percentage_THCa = 0;
@@ -66,10 +82,11 @@ int main() {
     WORD originalConsoleAttributes = consoleInfo.wAttributes;
 
     while (true) {
-        ioHandler.setTextColor(2);
-        std::cout << "CannaCalculator\n\n";
-        ioHandler.setTextColor(7);
+        ioHandler.setSystemOutputColor(); // Set system output color
 
+        std::cout << "CannaCalculator\n\n";
+
+        ioHandler.setUserInputColor(); // Set user input color
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
@@ -77,13 +94,17 @@ int main() {
         char response{};
 
         while (true) {
+            ioHandler.setUserInputColor(); // Set user input color
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
-            ioHandler.setTextColor(2);
+
+            ioHandler.setUserInputColor(); // Set user input color
             if (std::cin >> response) {
                 if (response == 'y' || response == 'Y') {
                     enableLoss = true;
+                    ioHandler.setSystemOutputColor(); // Set system output color
                     std::cout << "\nThe default loss is 20% THC\n";
 
+                    ioHandler.setUserInputColor(); // Set user input color
                     std::cout << "Would you like to use a custom percentage? (y/n): ";
                     std::cin >> response;
                     if (response == 'y' || response == 'Y') {
