@@ -59,8 +59,8 @@ public:
 
 class WindowsAPIHandler {
 private:
-    WORD originalConsoleAttributes; // Variable to store original console attributes
-    HANDLE hConsole{};
+    WORD originalConsoleAttributes;
+    HANDLE hConsole;
 
 public:
     WindowsAPIHandler() {
@@ -72,8 +72,13 @@ public:
         }
 
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
-        originalConsoleAttributes = consoleInfo.wAttributes; // Save original console attributes
+        if (!GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) {
+            setErrorMessageColor();
+            std::cerr << "Error: Unable to get console screen buffer info." << std::endl;
+            exit(1);
+        }
+
+        originalConsoleAttributes = consoleInfo.wAttributes;
     }
 
     void setTextColor(int textColor, int backgroundColor) { // Bitwise left shifts the background color bits to the exspected location in the 8 bit binary that is sent to the OS: Bits 0-3: Background color - Bits 4 - 7: Foreground(text) color
@@ -108,13 +113,12 @@ public:
     }
 
     ~WindowsAPIHandler() {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), originalConsoleAttributes); // Restore original console attributes
+        SetConsoleTextAttribute(hConsole, originalConsoleAttributes);
     }
 };
 
 class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
 public:
-    // Function to safely get a double input
     double getDoubleInput(const std::string& prompt, double minValue, double maxValue) {
         double value;
         while (true) {
@@ -144,8 +148,8 @@ public:
     }
 };
 
-/////////////////////////////  MAIN
 
+/////////////////////////////  MAIN
 
 int main() {
     double percentage_THCa = 0;
@@ -170,7 +174,8 @@ int main() {
 
         bool enableLoss = false;
         char response{};
-
+        
+        // START User Input
         while (true) {
             ioHandler.setSystemOutputColor(); // Set system color
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
@@ -286,7 +291,9 @@ int main() {
                 ioHandler.clearInputBuffer();
             }
         }
-
+        // END User Input
+        // 
+        // Perform calculations
         double percentLoss = 0.8;
 
         if (customLoss > 0) {
@@ -299,7 +306,9 @@ int main() {
         else {
             mg_THC = (percentage_THCa * 10) * grams_flower;
         }
-
+        // END Calculations
+        //
+        // OUTPUT RESULT
         ioHandler.grayOutAllText();
         ioHandler.setTextColor(3, 0);
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
@@ -311,7 +320,9 @@ int main() {
         }
 
         std::cout << "\n\n";
-
+        // 
+        // END OF PROGRAM LOGIC
+        //
         while (true) {
             ioHandler.setSystemOutputColor();
             std::cout << "Do you want to reset or exit the program? (reset/exit): ";
