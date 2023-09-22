@@ -19,13 +19,26 @@ public:
 };
 
 class WindowsAPIHandler {
+private:
+    WORD originalConsoleAttributes; // Variable to store original console attributes
+
 public:
+    WindowsAPIHandler() {
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
+        originalConsoleAttributes = consoleInfo.wAttributes; // Save original console attributes
+    }
+
     void setTextColor(int color) {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
     }
 
     void setScreenColor(const char* color) {
         system(color);
+    }
+
+    ~WindowsAPIHandler() {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), originalConsoleAttributes); // Restore original console attributes
     }
 };
 
@@ -44,6 +57,12 @@ int main() {
     double customLoss = 0;
 
     InputOutputHandler ioHandler;
+
+    // Save original console attributes
+    const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+    WORD originalConsoleAttributes = consoleInfo.wAttributes;
 
     while (true) {
         ioHandler.setTextColor(2);
@@ -189,6 +208,7 @@ int main() {
                 break;
             }
             else if (response == "exit") {
+                SetConsoleTextAttribute(hConsole, originalConsoleAttributes); // Restore original console attributes before exiting
                 return 0;
             }
             else {
