@@ -29,16 +29,27 @@ public:
 class WindowsAPIHandler {
 private:
     WORD originalConsoleAttributes; // Variable to store original console attributes
+    HANDLE hConsole{};
 
 public:
     WindowsAPIHandler() {
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole == INVALID_HANDLE_VALUE) {
+            setErrorMessageColor();
+            std::cerr << "Error: Unable to get console handle." << std::endl;
+            exit(1);
+        }
+
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
         originalConsoleAttributes = consoleInfo.wAttributes; // Save original console attributes
     }
-
+  
     void setTextColor(int color) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+        if (!SetConsoleTextAttribute(hConsole, color)) {
+            std::cerr << "Error: Unable to set console text attribute." << std::endl;
+            exit(1);
+        }
     }
 
     void grayOutAllText() {
@@ -233,7 +244,7 @@ int main() {
         }
 
         ioHandler.grayOutAllText();
-        ioHandler.setTextColor(9);
+        ioHandler.setTextColor(3);//////////////////////////////////////////////////////////////////
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
