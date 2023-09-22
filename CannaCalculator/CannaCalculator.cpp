@@ -21,6 +21,8 @@ enum class ConsoleColor : int {
     LightPurple = 13,
     LightYellow = 14,
     BrightWhite = 15,
+    BoldBlack = 16,
+    BoldRed = 17,
 
     // Background Colors
     BgBlack = 0,
@@ -81,8 +83,11 @@ public:
         originalConsoleAttributes = consoleInfo.wAttributes;
     }
 
-    void setTextColor(int textColor, int backgroundColor) { // Bitwise left shifts the background color bits to the exspected location in the 8 bit binary that is sent to the OS: Bits 0-3: Background color - Bits 4 - 7: Foreground(text) color
-        if (!SetConsoleTextAttribute(hConsole, textColor | backgroundColor << 4)) {
+    void setTextColor(ConsoleColor textColor, ConsoleColor backgroundColor) { // Bitwise left shifts the background color bits to the exspected location in the 8 bit binary that is sent to the OS: Bits 0-3: Background color - Bits 4 - 7: Foreground(text) color
+        int text = static_cast<int>(textColor);
+        int background = static_cast<int>(backgroundColor);
+
+        if (!SetConsoleTextAttribute(hConsole, text | background << 4)) {
             std::cerr << "Error: Unable to set console text attribute." << std::endl;
             exit(1);
         }
@@ -97,15 +102,15 @@ public:
     }
 
     void setErrorMessageColor() {
-        setTextColor(12, 0); // Set error messages to red
+        setTextColor(ConsoleColor::LightRed, ConsoleColor::Black); // Set error messages to red
     }
 
     void setUserInputColor() {
-        setTextColor(10, 0); // Set user input to green
+        setTextColor(ConsoleColor::LightGreen, ConsoleColor::Black); // Set user input to green
     }
 
     void setSystemOutputColor() {
-        setTextColor(7, 0); // Set system output to default color
+        setTextColor(ConsoleColor::White, ConsoleColor::Black); // Set system output to default color
     }
 
     void cls() {
@@ -166,7 +171,7 @@ int main() {
 
     while (true) {
         ioHandler.cls();
-        ioHandler.setTextColor(10, 0);
+        ioHandler.setTextColor(ConsoleColor::LightGreen, ConsoleColor::Black);
         std::cout << "CannaCalculator\n\n";
         ioHandler.setSystemOutputColor();
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
@@ -240,7 +245,7 @@ int main() {
         while (true) {
             ioHandler.setSystemOutputColor();
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
-            ioHandler.setTextColor(2, 0);
+            ioHandler.setTextColor(ConsoleColor::Green, ConsoleColor::Black);
             try {
                 double tempPercentage;
                 ioHandler.setUserInputColor();
@@ -310,7 +315,7 @@ int main() {
         //
         // OUTPUT RESULT
         ioHandler.grayOutAllText();
-        ioHandler.setTextColor(3, 0);
+        ioHandler.setTextColor(ConsoleColor::Aqua, ConsoleColor::Black);
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
