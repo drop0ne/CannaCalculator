@@ -47,6 +47,7 @@ public:
     void clearInputBuffer() {
         std::cin.sync();
         std::cin.clear();
+        std::cin.ignore(100, '\n'); // Hard coded maximum value (100)
     }
 };
 
