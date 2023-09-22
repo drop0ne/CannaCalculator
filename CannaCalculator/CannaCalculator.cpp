@@ -16,6 +16,14 @@ public:
     bool getErrorFlag() const {
         return errorFlag;
     }
+
+    void clearInputBuffer() {
+        std::cin.sync();
+        std::cin.clear();
+        while (std::cin.get() != '\n') {
+            // Keep reading and discarding characters until a newline is encountered
+        }
+    }
 };
 
 class WindowsAPIHandler {
@@ -37,21 +45,6 @@ public:
         system(color);
     }
 
-    ~WindowsAPIHandler() {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), originalConsoleAttributes); // Restore original console attributes
-    }
-};
-
-class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
-public:
-    void clearInputBuffer() {
-        std::cin.sync();
-        std::cin.clear();
-        while (std::cin.get() != '\n') {
-            // Keep reading and discarding characters until a newline is encountered
-        }
-    }
-
     void setErrorMessageColor() {
         setTextColor(4); // Set error messages to red
     }
@@ -63,6 +56,14 @@ public:
     void setSystemOutputColor() {
         setTextColor(7); // Set system output to default color
     }
+
+    ~WindowsAPIHandler() {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), originalConsoleAttributes); // Restore original console attributes
+    }
+};
+
+class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
+public:
 };
 
 
