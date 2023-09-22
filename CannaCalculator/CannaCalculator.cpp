@@ -85,10 +85,7 @@ int main() {
 
     while (true) {
         ioHandler.setSystemOutputColor(); // Set system output color
-
         std::cout << "CannaCalculator\n\n";
-
-        ioHandler.setUserInputColor(); // Set user input color
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
@@ -96,7 +93,7 @@ int main() {
         char response{};
 
         while (true) {
-            ioHandler.setUserInputColor(); // Set user input color
+            ioHandler.setSystemOutputColor(); // Set system color
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
 
             ioHandler.setUserInputColor(); // Set user input color
@@ -106,24 +103,29 @@ int main() {
                     ioHandler.setSystemOutputColor(); // Set system output color
                     std::cout << "\nThe default loss is 20% THC\n";
 
-                    ioHandler.setUserInputColor(); // Set user input color
+                    ioHandler.setSystemOutputColor(); // Set user input color
                     std::cout << "Would you like to use a custom percentage? (y/n): ";
+                    ioHandler.setUserInputColor();
                     std::cin >> response;
                     if (response == 'y' || response == 'Y') {
                         customLoss = 0;
 
                         while (true) {
+                            ioHandler.setSystemOutputColor();
                             std::cout << "Enter Custom Loss as a decimal number. For example, 0.8 is 20%: ";
                             try {
+                                ioHandler.setUserInputColor();
                                 if (std::cin >> customLoss) {
                                     if (customLoss >= 0 && customLoss <= 1) {
                                         break;
                                     }
                                     else {
+                                        ioHandler.setErrorMessageColor();
                                         throw std::out_of_range("Invalid input. Please enter a decimal number between 0 and 1.");
                                     }
                                 }
                                 else {
+                                    ioHandler.setErrorMessageColor();
                                     throw std::runtime_error("Invalid input. Please enter a numeric value.");
                                 }
                             }
@@ -139,31 +141,36 @@ int main() {
                     break;
                 }
                 else {
+                    ioHandler.setErrorMessageColor();
                     std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
                 }
             }
             else {
+                ioHandler.setErrorMessageColor();
                 std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
                 ioHandler.clearInputBuffer();
             }
         }
 
         while (true) {
-            ioHandler.setTextColor(7);
+            ioHandler.setSystemOutputColor();
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
             ioHandler.setTextColor(2);
             try {
                 double tempPercentage;
+                ioHandler.setUserInputColor();
                 if (std::cin >> tempPercentage) {
                     if (tempPercentage >= 0 && tempPercentage <= 100) {
                         percentage_THCa = tempPercentage;
                         break;
                     }
                     else {
+                        ioHandler.setErrorMessageColor();
                         throw std::out_of_range("Invalid input. Please enter a percentage between 0 and 100.");
                     }
                 }
                 else {
+                    ioHandler.setErrorMessageColor();
                     throw std::runtime_error("Invalid input. Please enter a numeric value.");
                 }
             }
@@ -174,19 +181,23 @@ int main() {
         }
 
         while (true) {
+            ioHandler.setSystemOutputColor();
             std::cout << "How many grams of flower are you using? ";
             try {
                 double tempGrams;
+                ioHandler.setUserInputColor();
                 if (std::cin >> tempGrams) {
                     if (tempGrams > 0) {
                         grams_flower = tempGrams;
                         break;
                     }
                     else {
+                        ioHandler.setErrorMessageColor();
                         throw std::out_of_range("Invalid input. Please enter a positive value.");
                     }
                 }
                 else {
+                    ioHandler.setErrorMessageColor();
                     throw std::runtime_error("Invalid input. Please enter a numeric value.");
                 }
             }
@@ -209,7 +220,7 @@ int main() {
             mg_THC = (percentage_THCa * 10) * grams_flower;
         }
 
-        ioHandler.setTextColor(7);
+        ioHandler.setSystemOutputColor();
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
@@ -220,8 +231,10 @@ int main() {
         std::cout << "\n\n";
 
         while (true) {
+            ioHandler.setSystemOutputColor();
             std::cout << "Do you want to reset or exit the program? (reset/exit): ";
             std::string response;
+            ioHandler.setUserInputColor();
             std::cin >> response;
 
             if (response == "reset") {
@@ -232,10 +245,12 @@ int main() {
                 break;
             }
             else if (response == "exit") {
+                ioHandler.setSystemOutputColor();
                 SetConsoleTextAttribute(hConsole, originalConsoleAttributes); // Restore original console attributes before exiting
                 return 0;
             }
             else {
+                ioHandler.setErrorMessageColor();
                 std::cout << "Invalid input. Please enter 'reset' or 'exit'.\n";
             }
         }
