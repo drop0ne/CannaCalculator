@@ -233,10 +233,11 @@ int main() {
         }
 
         ioHandler.grayOutAllText();
-        ioHandler.setSystemOutputColor();
+        ioHandler.setTextColor(9);
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
+        ioHandler.setSystemOutputColor();
         for (int i = 2; i <= 27; i += 2) {
             std::cout << static_cast<int>(mg_THC / i) << "mg per " << i << " servings\n";
         }
