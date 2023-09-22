@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <Windows.h>
+#include <string>
 
 enum class ConsoleColor : int {
     // Foreground (Text) Colors
@@ -113,10 +114,35 @@ public:
 
 class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
 public:
-    // No need for code here at this time
-    // Class has inherited all required code
+    // Function to safely get a double input
+    double getDoubleInput(const std::string& prompt, double minValue, double maxValue) {
+        double value;
+        while (true) {
+            setSystemOutputColor();
+            std::cout << prompt;
+            try {
+                setUserInputColor();
+                if (std::cin >> value) {
+                    if (value >= minValue && value <= maxValue) {
+                        return value;
+                    }
+                    else {
+                        setErrorMessageColor();
+                        throw std::out_of_range("Invalid input. Please enter a value between " + std::to_string(minValue) + " and " + std::to_string(maxValue) + ".");
+                    }
+                }
+                else {
+                    setErrorMessageColor();
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
+                }
+            }
+            catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
+                clearInputBuffer();
+            }
+        }
+    }
 };
-
 
 /////////////////////////////  MAIN
 
@@ -129,7 +155,6 @@ int main() {
 
     InputOutputHandler ioHandler;
 
-    // Save original console attributes
     const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
     GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
@@ -137,9 +162,9 @@ int main() {
 
     while (true) {
         ioHandler.cls();
-        ioHandler.setTextColor(10, 0); // Set system output color
+        ioHandler.setTextColor(10, 0);
         std::cout << "CannaCalculator\n\n";
-        ioHandler.setSystemOutputColor(); // Set system output color
+        ioHandler.setSystemOutputColor();
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
@@ -276,7 +301,7 @@ int main() {
         }
 
         ioHandler.grayOutAllText();
-        ioHandler.setTextColor(3, 0);//////////////////////////////////////////////////////////////////
+        ioHandler.setTextColor(3, 0);
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
@@ -303,7 +328,7 @@ int main() {
             }
             else if (response == "exit") {
                 ioHandler.setSystemOutputColor();
-                SetConsoleTextAttribute(hConsole, originalConsoleAttributes); // Restore original console attributes before exiting
+                SetConsoleTextAttribute(hConsole, originalConsoleAttributes);
                 return 0;
             }
             else {
