@@ -18,14 +18,6 @@ public:
     }
 };
 
-class InputOutputHandler : public ErrorHandler {
-public:
-    void clearInputBuffer() {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-};
-
 class WindowsAPIHandler {
 public:
     void setTextColor(int color) {
@@ -34,6 +26,14 @@ public:
 
     void setScreenColor(const char* color) {
         system(color);
+    }
+};
+
+class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
+public:
+    void clearInputBuffer() {
+        std::cin.sync();
+        std::cin.clear();
     }
 };
 
@@ -178,6 +178,7 @@ int main() {
 
         while (true) {
             std::cout << "Do you want to reset or exit the program? (reset/exit): ";
+            std::string response;
             std::cin >> response;
 
             if (response == "reset") {
