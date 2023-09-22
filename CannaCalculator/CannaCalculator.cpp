@@ -2,6 +2,36 @@
 #include <limits>
 #include <Windows.h>
 
+enum class ConsoleColor : int {
+    // Foreground (Text) Colors
+    Black = 0,
+    Blue = 1,
+    Green = 2,
+    Aqua = 3,
+    Red = 4,
+    Purple = 5,
+    Yellow = 6,
+    White = 7,
+    Gray = 8,
+    LightBlue = 9,
+    LightGreen = 10,
+    LightAqua = 11,
+    LightRed = 12,
+    LightPurple = 13,
+    LightYellow = 14,
+    BrightWhite = 15,
+
+    // Background Colors
+    BgBlack = 0,
+    BgBlue = 1,
+    BgGreen = 2,
+    BgAqua = 3,
+    BgRed = 4,
+    BgPurple = 5,
+    BgYellow = 6,
+    BgWhite = 7
+};
+
 class ErrorHandler {
 private:
     bool errorFlag;
@@ -44,9 +74,9 @@ public:
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
         originalConsoleAttributes = consoleInfo.wAttributes; // Save original console attributes
     }
-  
-    void setTextColor(int color) {
-        if (!SetConsoleTextAttribute(hConsole, color)) {
+
+    void setTextColor(int textColor, int backgroundColor) { // Bitwise left shifts the background color bits to the exspected location in the 8 bit binary that is sent to the OS: Bits 0-3: Background color - Bits 4 - 7: Foreground(text) color
+        if (!SetConsoleTextAttribute(hConsole, textColor | backgroundColor << 4)) {
             std::cerr << "Error: Unable to set console text attribute." << std::endl;
             exit(1);
         }
@@ -61,15 +91,15 @@ public:
     }
 
     void setErrorMessageColor() {
-        setTextColor(4); // Set error messages to red
+        setTextColor(12, 0); // Set error messages to red
     }
 
     void setUserInputColor() {
-        setTextColor(10); // Set user input to green
+        setTextColor(10, 0); // Set user input to green
     }
 
     void setSystemOutputColor() {
-        setTextColor(7); // Set system output to default color
+        setTextColor(7, 0); // Set system output to default color
     }
 
     void cls() {
@@ -83,6 +113,8 @@ public:
 
 class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
 public:
+    // No need for code here at this time
+    // Class has inherited all required code
 };
 
 
@@ -105,7 +137,7 @@ int main() {
 
     while (true) {
         ioHandler.cls();
-        ioHandler.setTextColor(10); // Set system output color
+        ioHandler.setTextColor(10, 0); // Set system output color
         std::cout << "CannaCalculator\n\n";
         ioHandler.setSystemOutputColor(); // Set system output color
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
@@ -178,7 +210,7 @@ int main() {
         while (true) {
             ioHandler.setSystemOutputColor();
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
-            ioHandler.setTextColor(2);
+            ioHandler.setTextColor(2, 0);
             try {
                 double tempPercentage;
                 ioHandler.setUserInputColor();
@@ -244,7 +276,7 @@ int main() {
         }
 
         ioHandler.grayOutAllText();
-        ioHandler.setTextColor(3);//////////////////////////////////////////////////////////////////
+        ioHandler.setTextColor(3, 0);//////////////////////////////////////////////////////////////////
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
