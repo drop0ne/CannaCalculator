@@ -47,7 +47,9 @@ public:
     void clearInputBuffer() {
         std::cin.sync();
         std::cin.clear();
-        std::cin.ignore(100, '\n');
+        while (std::cin.get() != '\n') {
+            // Keep reading and discarding characters until a newline is encountered
+        }
     }
 
     void setErrorMessageColor() {
