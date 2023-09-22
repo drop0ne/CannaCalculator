@@ -41,6 +41,10 @@ public:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
     }
 
+    void grayOutAllText() {
+        system("color 8");
+    }
+
     void setScreenColor(const char* color) {
         system(color);
     }
@@ -55,6 +59,10 @@ public:
 
     void setSystemOutputColor() {
         setTextColor(7); // Set system output to default color
+    }
+
+    void cls() {
+        system("cls");
     }
 
     ~WindowsAPIHandler() {
@@ -85,8 +93,10 @@ int main() {
     WORD originalConsoleAttributes = consoleInfo.wAttributes;
 
     while (true) {
-        ioHandler.setSystemOutputColor(); // Set system output color
+        ioHandler.cls();
+        ioHandler.setTextColor(10); // Set system output color
         std::cout << "CannaCalculator\n\n";
+        ioHandler.setSystemOutputColor(); // Set system output color
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
@@ -99,6 +109,7 @@ int main() {
 
             ioHandler.setUserInputColor(); // Set user input color
             if (std::cin >> response) {
+                ioHandler.grayOutAllText();
                 if (response == 'y' || response == 'Y') {
                     enableLoss = true;
                     ioHandler.setSystemOutputColor(); // Set system output color
@@ -221,6 +232,7 @@ int main() {
             mg_THC = (percentage_THCa * 10) * grams_flower;
         }
 
+        ioHandler.grayOutAllText();
         ioHandler.setSystemOutputColor();
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
