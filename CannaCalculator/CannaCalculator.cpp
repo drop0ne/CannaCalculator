@@ -65,7 +65,6 @@ public:
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cin.sync();
     }
-
 };
 
 class WindowsAPIHandler {
@@ -191,6 +190,14 @@ public:
             }
         }
     }
+
+    void check_cin_failSate() {
+        if (std::cin.fail()) {
+            setErrorMessageColor();
+            std::cout << "Invalid input. Please enter a numeric value.\n";
+            clearInputBuffer();
+        }
+    }
 };
 
 /////////////////////////////  MAIN
@@ -307,6 +314,7 @@ int main() {
                 std::cout << e.what() << "\n";
                 ioHandler.clearInputBuffer();
             }
+            ioHandler.check_cin_failSate();
         }
 
         while (true) {
@@ -334,6 +342,7 @@ int main() {
                 std::cout << e.what() << "\n";
                 ioHandler.clearInputBuffer();
             }
+            ioHandler.check_cin_failSate();
         }
         // END User Input
         // 
