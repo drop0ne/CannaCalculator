@@ -1,6 +1,42 @@
 #include <iostream>
 #include <limits>
 #include <Windows.h>
+#include <string>
+#include <span>
+#include <algorithm>
+#undef max
+
+enum class ConsoleColor : int {
+    // Foreground (Text) Colors
+    Black = 0,
+    Blue = 1,
+    Green = 2,
+    Aqua = 3,
+    Red = 4,
+    Purple = 5,
+    Yellow = 6,
+    White = 7,
+    Gray = 8,
+    LightBlue = 9,
+    LightGreen = 10,
+    LightAqua = 11,
+    LightRed = 12,
+    LightPurple = 13,
+    LightYellow = 14,
+    BrightWhite = 15,
+    BoldBlack = 16,
+    BoldRed = 17,
+
+    // Background Colors
+    BgBlack = 0,
+    BgBlue = 1,
+    BgGreen = 2,
+    BgAqua = 3,
+    BgRed = 4,
+    BgPurple = 5,
+    BgYellow = 6,
+    BgWhite = 7
+};
 
 class ErrorHandler {
 private:
@@ -17,28 +53,52 @@ public:
         return errorFlag;
     }
 
-    void clearInputBuffer() {
+    /*void clearInputBuffer() {
         std::cin.sync();
         std::cin.clear();
         while (std::cin.get() != '\n') {
             // Keep reading and discarding characters until a newline is encountered
         }
+    }*/
+    void clearInputBuffer() {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.sync();
     }
 };
 
 class WindowsAPIHandler {
 private:
-    WORD originalConsoleAttributes; // Variable to store original console attributes
+    WORD originalConsoleAttributes;
+    HANDLE hConsole;
 
 public:
     WindowsAPIHandler() {
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole == INVALID_HANDLE_VALUE) {
+            setErrorMessageColor();
+            std::cerr << "Error: Unable to get console handle." << std::endl;
+            exit(1);
+        }
+
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo);
-        originalConsoleAttributes = consoleInfo.wAttributes; // Save original console attributes
+        if (!GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) {
+            setErrorMessageColor();
+            std::cerr << "Error: Unable to get console screen buffer info." << std::endl;
+            exit(1);
+        }
+
+        originalConsoleAttributes = consoleInfo.wAttributes;
     }
 
-    void setTextColor(int color) {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    void setTextColor(ConsoleColor textColor, ConsoleColor backgroundColor) { // Bitwise left shifts the background color bits to the exspected location in the 8 bit binary that is sent to the OS: Bits 0-3: Background color - Bits 4 - 7: Foreground(text) color
+        int text = static_cast<int>(textColor);
+        int background = static_cast<int>(backgroundColor);
+
+        if (!SetConsoleTextAttribute(hConsole, text | background << 4)) {
+            std::cerr << "Error: Unable to set console text attribute." << std::endl;
+            exit(1);
+        }
     }
 
     void grayOutAllText() {
@@ -50,15 +110,15 @@ public:
     }
 
     void setErrorMessageColor() {
-        setTextColor(4); // Set error messages to red
+        setTextColor(ConsoleColor::LightRed, ConsoleColor::Black); // Set error messages to red
     }
 
     void setUserInputColor() {
-        setTextColor(10); // Set user input to green
+        setTextColor(ConsoleColor::LightGreen, ConsoleColor::Black); // Set user input to green
     }
 
     void setSystemOutputColor() {
-        setTextColor(7); // Set system output to default color
+        setTextColor(ConsoleColor::White, ConsoleColor::Black); // Set system output to default color
     }
 
     void cls() {
@@ -66,17 +126,81 @@ public:
     }
 
     ~WindowsAPIHandler() {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), originalConsoleAttributes); // Restore original console attributes
+        SetConsoleTextAttribute(hConsole, originalConsoleAttributes);
     }
 };
 
 class InputOutputHandler : public ErrorHandler, public WindowsAPIHandler {
 public:
+    double getDoubleInput(const std::string& prompt, double minValue, double maxValue) {
+        double value;
+        while (true) {
+            setSystemOutputColor();
+            std::cout << prompt;
+            try {
+                setUserInputColor();
+
+                // Use std::span to safely read user input
+                std::span<char> userInput = std::span<char>(new char[100], 100); // Setting character input maximum size to 100
+                std::cin.getline(userInput.data(), userInput.size());
+
+                if (std::cin.fail()) {
+                    setErrorMessageColor();
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
+                }
+
+                value = std::stod(userInput.data());
+
+                delete[] userInput.data(); // Don't forget to free the memory
+
+                if (value >= minValue && value <= maxValue) {
+                    return value;
+                }
+                else {
+                    setErrorMessageColor();
+                    throw std::out_of_range("Invalid input. Please enter a value between " + std::to_string(minValue) + " and " + std::to_string(maxValue) + ".");
+                }
+            }
+            catch (const std::exception& e) {
+                std::cout << e.what() << "\n";
+                clearInputBuffer();
+            }
+        }
+    }
+
+    std::string_view getStringInput(const std::string& prompt) {
+        std::string_view response;
+
+        while (true) {
+            setSystemOutputColor();
+            std::cout << prompt;
+
+            setUserInputColor();
+            std::string tempResponse;
+            std::cin >> tempResponse;
+
+            response = tempResponse;
+
+            if (response == "y" || response == "Y" || response == "n" || response == "N") {
+                return response;
+            }
+            else {
+                setErrorMessageColor();
+                std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
+            }
+        }
+    }
+
+    void check_cin_failSate() {
+        if (std::cin.fail()) {
+            setErrorMessageColor();
+            std::cout << "Invalid input. Please enter a numeric value.\n";
+            clearInputBuffer();
+        }
+    }
 };
 
-
 /////////////////////////////  MAIN
-
 
 int main() {
     double percentage_THCa = 0;
@@ -86,7 +210,6 @@ int main() {
 
     InputOutputHandler ioHandler;
 
-    // Save original console attributes
     const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
     GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
@@ -94,15 +217,16 @@ int main() {
 
     while (true) {
         ioHandler.cls();
-        ioHandler.setTextColor(10); // Set system output color
+        ioHandler.setTextColor(ConsoleColor::LightGreen, ConsoleColor::Black);
         std::cout << "CannaCalculator\n\n";
-        ioHandler.setSystemOutputColor(); // Set system output color
+        ioHandler.setSystemOutputColor();
         std::cout << "First, enter the percentage of THCa in your cannabis flower.\n"
             << "Then, enter the total number of grams of flower you will use to infuse oil or butter.\n\n";
 
         bool enableLoss = false;
         char response{};
-
+        
+        // START User Input
         while (true) {
             ioHandler.setSystemOutputColor(); // Set system color
             std::cout << "Would you like me to account for loss of THC during the infusing process? (y/n): ";
@@ -167,7 +291,7 @@ int main() {
         while (true) {
             ioHandler.setSystemOutputColor();
             std::cout << "\nWhat percentage of THCa is the cannabis flower you are using? ";
-            ioHandler.setTextColor(2);
+            ioHandler.setTextColor(ConsoleColor::Green, ConsoleColor::Black);
             try {
                 double tempPercentage;
                 ioHandler.setUserInputColor();
@@ -190,6 +314,7 @@ int main() {
                 std::cout << e.what() << "\n";
                 ioHandler.clearInputBuffer();
             }
+            ioHandler.check_cin_failSate();
         }
 
         while (true) {
@@ -217,8 +342,11 @@ int main() {
                 std::cout << e.what() << "\n";
                 ioHandler.clearInputBuffer();
             }
+            ioHandler.check_cin_failSate();
         }
-
+        // END User Input
+        // 
+        // Perform calculations
         double percentLoss = 0.8;
 
         if (customLoss > 0) {
@@ -231,9 +359,11 @@ int main() {
         else {
             mg_THC = (percentage_THCa * 10) * grams_flower;
         }
-
+        // END Calculations
+        //
+        // OUTPUT RESULT
         ioHandler.grayOutAllText();
-        ioHandler.setTextColor(9);
+        ioHandler.setTextColor(ConsoleColor::Aqua, ConsoleColor::Black);
         std::cout << "\n" << percentage_THCa << "% THCa converts to "
             << static_cast<int>(mg_THC) << "mg THC per " << grams_flower << "g of flower.\n\n";
 
@@ -243,7 +373,9 @@ int main() {
         }
 
         std::cout << "\n\n";
-
+        // 
+        // END OF PROGRAM LOGIC
+        //
         while (true) {
             ioHandler.setSystemOutputColor();
             std::cout << "Do you want to reset or exit the program? (reset/exit): ";
@@ -260,7 +392,7 @@ int main() {
             }
             else if (response == "exit") {
                 ioHandler.setSystemOutputColor();
-                SetConsoleTextAttribute(hConsole, originalConsoleAttributes); // Restore original console attributes before exiting
+                SetConsoleTextAttribute(hConsole, originalConsoleAttributes);
                 return 0;
             }
             else {
