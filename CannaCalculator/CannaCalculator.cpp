@@ -2,6 +2,7 @@
 #include <limits>
 #include <Windows.h>
 #include <string>
+#include <span>
 
 enum class ConsoleColor : int {
     // Foreground (Text) Colors
@@ -131,18 +132,26 @@ public:
             std::cout << prompt;
             try {
                 setUserInputColor();
-                if (std::cin >> value) {
-                    if (value >= minValue && value <= maxValue) {
-                        return value;
-                    }
-                    else {
-                        setErrorMessageColor();
-                        throw std::out_of_range("Invalid input. Please enter a value between " + std::to_string(minValue) + " and " + std::to_string(maxValue) + ".");
-                    }
+
+                // Use std::span to safely read user input
+                std::span<char> userInput = std::span<char>(new char[100], 100); // Assuming 100 characters is the maximum input size
+                std::cin.getline(userInput.data(), userInput.size());
+
+                if (std::cin.fail()) {
+                    setErrorMessageColor();
+                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
+                }
+
+                value = std::stod(userInput.data());
+
+                delete[] userInput.data(); // Don't forget to free the memory
+
+                if (value >= minValue && value <= maxValue) {
+                    return value;
                 }
                 else {
                     setErrorMessageColor();
-                    throw std::runtime_error("Invalid input. Please enter a numeric value.");
+                    throw std::out_of_range("Invalid input. Please enter a value between " + std::to_string(minValue) + " and " + std::to_string(maxValue) + ".");
                 }
             }
             catch (const std::exception& e) {
@@ -151,8 +160,30 @@ public:
             }
         }
     }
-};
 
+    std::string_view getStringInput(const std::string& prompt) {
+        std::string_view response;
+
+        while (true) {
+            setSystemOutputColor();
+            std::cout << prompt;
+
+            setUserInputColor();
+            std::string tempResponse;
+            std::cin >> tempResponse;
+
+            response = tempResponse;
+
+            if (response == "y" || response == "Y" || response == "n" || response == "N") {
+                return response;
+            }
+            else {
+                setErrorMessageColor();
+                std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
+            }
+        }
+    }
+};
 
 /////////////////////////////  MAIN
 
