@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <string>
 #include <span>
+#include <algorithm>
+#undef max
 
 enum class ConsoleColor : int {
     // Foreground (Text) Colors
@@ -51,13 +53,19 @@ public:
         return errorFlag;
     }
 
-    void clearInputBuffer() {
+    /*void clearInputBuffer() {
         std::cin.sync();
         std::cin.clear();
         while (std::cin.get() != '\n') {
             // Keep reading and discarding characters until a newline is encountered
         }
+    }*/
+    void clearInputBuffer() {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.sync();
     }
+
 };
 
 class WindowsAPIHandler {
@@ -134,7 +142,7 @@ public:
                 setUserInputColor();
 
                 // Use std::span to safely read user input
-                std::span<char> userInput = std::span<char>(new char[100], 100); // Assuming 100 characters is the maximum input size
+                std::span<char> userInput = std::span<char>(new char[100], 100); // Setting character input maximum size to 100
                 std::cin.getline(userInput.data(), userInput.size());
 
                 if (std::cin.fail()) {
